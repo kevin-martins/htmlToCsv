@@ -1,0 +1,70 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+body {
+    background-image: radial-gradient( circle farthest-corner at 48.4% 47.5%,  rgba(122,183,255,1) 0%, rgba(21,83,161,1) 90% );
+    height: 100vh;
+}
+
+div {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: auto;
+}
+
+textarea {
+    width: 800px;
+    height: 400px;
+    resize: none;
+    margin: auto auto 0px auto;
+}
+
+div button {
+    background-color: #3b82f6;
+    margin: 12px auto auto auto;
+    outline: none;
+    border: none;
+    color: white;
+    width: 250px;
+    height: 40px;
+    border-radius: 50px;
+    transition: all .3s;
+}
+
+div button:hover {
+    background-color: #2563eb;
+    cursor: pointer;
+    transform: scale(1.05);
+}
+
+div.modal-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 900px;
+    height: 600px;
+    transform: translate(-50%, -50%);
+    border-radius: 10px;
+    background-color: rgb(45, 52, 50);
+    z-index: 2;
+}
+
+div.modal {
+    display: grid;
+    color: white;
+    font-size: xx-large;
+    align-items: center;
+    place-items: center;
+}
+
+div.modal div {
+    height: 100px;
+}
+
+.close {
+    display: none;
+}
