@@ -5,20 +5,20 @@
 }
 
 body {
-    background-image: radial-gradient( circle farthest-corner at 48.4% 47.5%,  rgba(122,183,255,1) 0%, rgba(21,83,161,1) 90% );
+    background-image: radial-gradient(circle farthest-corner at 48.4% 47.5%,  rgba(122,183,255,1) 0%, rgba(21,83,161,1) 90% );
     height: 100vh;
 }
 
 div {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
+    place-self: center;
     height: 100%;
-    margin: auto;
 }
 
 textarea {
-    width: 800px;
-    height: 400px;
+    width: 400px;
+    height: 150px;
     resize: none;
     margin: auto auto 0px auto;
 }
@@ -39,32 +39,4 @@ div button:hover {
     background-color: #2563eb;
     cursor: pointer;
     transform: scale(1.05);
-}
-
-div.modal-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 900px;
-    height: 600px;
-    transform: translate(-50%, -50%);
-    border-radius: 10px;
-    background-color: rgb(45, 52, 50);
-    z-index: 2;
-}
-
-div.modal {
-    display: grid;
-    color: white;
-    font-size: xx-large;
-    align-items: center;
-    place-items: center;
-}
-
-div.modal div {
-    height: 100px;
-}
-
-.close {
-    display: none;
 }
