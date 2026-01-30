@@ -1,91 +1,92 @@
-const dateToSeconds = (date) => {
-    const res = date.split(/[a-z]+/g);
-    res.pop()
-    if (res[0] === "0") return 0;
-    switch (res.length) {
-        case 1: return parseInt(res[0]);
-        case 2: return parseInt(res[0]) * 60 + parseInt(res[1]);
-        case 3: return parseInt(res[0] * 3600) + parseInt(res[1] * 60) + parseInt(res[2]);
-        default: return 0;
-    };
-};
+const twoDigits = (num) => {
+  num = num.trim();
+  return num < 10 ? `0${num}` : `${num}`;
+}
 
 const textArea = document.getElementById('textarea');
 const stateText = document.getElementById('stateText');
-let res = [];
+const p = document.getElementById('output');
 
-// const generateTable = (csvString) => {
-//     const tableBody = document.getElementById('table-body');
-//     tableBody.innerHTML = ''; // Clear existing rows
-//     const lines = csvString.split('\n');
-//     console.log(lines);
-//     for (let line of lines) {
-//         if (line.trim() === '') continue;
-//         const cells = line.split(';');
-//         console.log(cells);
-//         const row = document.createElement('tr');
-//         const cell = document.createElement('td');
-//         for (let cellValue of cells) {
-//             cell.innerHTML = cellValue;
-//             console.log(cellValues);
-//             row.appendChild(cell);
-//         }
-//         tableBody.appendChild(row);
-//     }
-// }
+const extractUserLogInfo = () => {
+  const userArray = textArea.value
+    .replace(/(<([^>]+)>)/ig, '\n')
+    .split('\n')
+    .filter(item => item.trim().length > 0);
+  const result = [];
 
-const organiseData = () => {
-    const text = textArea.value.replace(/(<([^>]+)>)/ig, '\n').split('\n');
-    res = [];
-    const length = text.length;
-    for (let i = 0; i < length; i++) {
-        if (text[i].length > 0) {
-            if (i+1 < length && ['h', 'min', 's'].includes(text[i + 1])) {
-                let date = "";
-                switch(text[i+1]) {
-                    case 'h':
-                        date += `${text[i]}${text[i+1]}${text[i+2].trim()}${text[i+3]}${text[i+4].trim()}${text[i+5]}`;
-                        i+=5;
-                        break;
-                    case 'min':
-                        date += `${text[i]}${text[i+1]}${text[i+2].trim()}${text[i+3]}`;
-                        i+=3;
-                        break;
-                    case 's':
-                        date += `${text[i]}${text[i+1]}`;
-                        i+=1;
-                        break;
-                }
-                res.push(dateToSeconds(date));
-                res.push(date);
-            } else {
-                res.push(text[i]);
-            }
+  for (let i = 0; i < userArray.length; i++) {
+    if (userArray[i].length > 0 && (i + 1) <= userArray.length) {
+      if (['h', 'min', 's'].includes(userArray[i + 1])) {
+        switch(userArray[i + 1]) {
+          case 'h':
+            result.push(`${userArray[i]}h${userArray[i+2]}min${userArray[i+4]}s`); // format hhmmss
+            result.push(`${twoDigits(userArray[i])}:${twoDigits(userArray[i+2])}:${twoDigits(userArray[i+4])}`); // format HH:MM:SS
+            result.push((parseInt(userArray[i]) * 3600 + parseInt(userArray[i+2]) * 60 + parseInt(userArray[i+4])).toString()); // format seconds
+            // result += `${userArray[i]}h${userArray[i+2]}min${userArray[i+4]}s;${twoDigits(userArray[i])}:${twoDigits(userArray[i+2])}:${twoDigits(userArray[i+4])}`
+            i+=5;
+            break;
+          case 'min':
+            result.push(`${userArray[i]}mins${userArray[i+2]}s`);
+            result.push(`00:${twoDigits(userArray[i])}:${twoDigits(userArray[i+2])}`);
+            result.push((parseInt(userArray[i]) * 60 + parseInt(userArray[i+2])).toString());
+            i+=3;
+            break;
+          case 's':
+            result.push(`${userArray[i]}s`);
+            result.push(`00:00:${twoDigits(userArray[i])}`);
+            result.push(parseInt(userArray[i]).toString());
+            i+=1;
+            break;
         }
+      } else if (userArray[i] === "0" && (i + 2) < userArray.length && !!userArray[i + 2].trim().match(/^([1-9]|[1-3][0-9]) \w+ \d{4} \d{2}:\d{2}$/g)) {
+        result.push(userArray[i]);
+        result.push("00:00:00");
+        result.push("0");
+      } else {
+        result.push(userArray[i]);
+      }
     }
-    if (res[2] !== "Temps en secondes") {
-        res.splice(2, 0, "Temps en secondes");
-    }
-    console.log(res);
-    return res;
-}
+  }
+
+  // result.splice(0, 0, "Date");
+  // result.splice(1, 0, "Utilisateurs");
+  // result.splice(2, 0, "Temps total");
+  result.splice(3, 0, result[2]);
+  // result.splice(4, 0, "Temps en secondes");
+  // result.splice(5, 0, "Pages visitées");
+
+  return result;
+};
 
 const formatCSV = (data) => {
-    let toCsv = "";
-    for (let i = 0, j = 1; i < data.length; i++, j++) {
-        if (j % 5 !== 0) {
-            toCsv += (data[i] + ';');
-        } else {
-            toCsv += (data[i] + '\n');
-        }
-    }
-    return toCsv;
+
+  return data
+    .reduce((acc, curr, i) => {
+      if ((i + 1) % 6 === 0) {
+        acc.push(curr + '\n');
+      } else {
+        acc.push(curr + ';');
+      }
+      return acc;
+    }, [])
+    .join('');
 }
 
 function copyFile() {
-    const data = organiseData();
-    const csvContent = formatCSV(data);
-    // generateTable(csvContent);
-    navigator.clipboard.writeText(csvContent);
-    alert("text copied");
+  const userArray = extractUserLogInfo();
+  const userCSV = formatCSV(userArray);
+
+  // const blob = new Blob([""], {
+  //   type: "text/csv;charset=utf-8;"
+  // });
+
+  // const url = URL.createObjectURL(blob);
+  // var link = document.createElement("a");
+  // link.setAttribute("href", url);
+  // link.setAttribute("download", `mylink_stats_${new Date().toLocaleDateString()}.xlsx`);
+  // document.body.appendChild(link);
+  // link.click();
+  // document.body.removeChild(link);
+  navigator.clipboard.writeText(userCSV);
+  alert("Texte copié, collez-le dans un fichier .csv ou attendez le téléchargement du fichier.");
 };
